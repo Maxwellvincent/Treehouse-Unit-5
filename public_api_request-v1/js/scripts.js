@@ -40,7 +40,7 @@ function fetchData(url){
     return fetch(url)
     .then(resp => resp.json())
 }
-fetchData('https://randomuser.me/api/?results=12&inc=picture,name,email,location,dob,phone')
+fetchData('https://randomuser.me/api/?results=12&nat=us&inc=picture,name,email,location,dob,phone')
     .then(data => generateCardHTML(data.results))
 
 
@@ -70,26 +70,34 @@ function generateCardHTML(data) {
     let items = [...cardItems];
 
         // Maps through each collected item, adds an event listener to each card item. 
-        items.map(item => {
+        items.map((item, index, items) => {
                 // Create event listener onto each card, so that a modal will popuplate. 
                     item.addEventListener('click', (e) => {
+                        console.log(items);
                         data.map(user => {
+                            
                             // The Logic states that, when a user is click and the innerhtml content is equal to the user first name, create and show that users info onto page.
                             if(e.target.innerHTML.indexOf(user.name.first) > -1) {
                                 // Creates HTML layout for each user that is clicked. 
                                 let modalDisplay = `
                                         <div class="modal-container">
-                                        <div class="modal">
-                                            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                                            <div class="modal-info-container">
-                                                <img class="modal-img" src="${user.picture.large} " alt="profile picture">
-                                                <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
-                                                <p class="modal-text">${user.email}</p>
-                                                <p class="modal-text cap">${user.location.city}</p>
-                                                <hr>
-                                                <p class="modal-text">${user.phone}</p>
-                                                <p class="modal-text">${user.location.street.number}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
-                                                <p class="modal-text">Birthday: ${user.dob.date}</p>
+                                            <div class="modal">
+                                                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                                                <div class="modal-info-container">
+                                                    <img class="modal-img" src="${user.picture.large} " alt="profile picture">
+                                                    <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+                                                    <p class="modal-text">${user.email}</p>
+                                                    <p class="modal-text cap">${user.location.city}</p>
+                                                    <hr>
+                                                    <p class="modal-text">${user.phone}</p>
+                                                    <p class="modal-text">${user.location.street.number}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
+                                                    <p class="modal-text">Birthday: ${user.dob.date}</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-btn-container">
+                                                <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                                                <button type="button" id="modal-next" class="modal-next btn">Next</button>
                                             </div>
                                         </div>
                                         `;
@@ -104,6 +112,15 @@ function generateCardHTML(data) {
                                     closeModal.addEventListener('click', () => {
                                         // Removes the added Div element from the HTML once clicked. 
                                         bodyElement.removeChild(modalDiv);
+                                    });
+                        const nextModal = document.querySelector('#modal-next');
+                        const prevModal = document.querySelector('#modal-prev');
+                                    nextModal.addEventListener('click', () => {
+                                        console.log("this was clicked next")
+                                    });
+                                    prevModal.addEventListener('click', () => {
+                                        console.log("this was clicked previous")
+
                                     });
                     });
         });
