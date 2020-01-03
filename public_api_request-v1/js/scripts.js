@@ -1,7 +1,7 @@
 const userList = document.getElementById('gallery');
 const searchBar = document.querySelector('.search-container');
 const bodyElement = document.querySelector('body');
-
+const modalDiv = document.createElement("div");
 
 // Create a search bar and append it to the Dom dynamically
 const search = `<form action="#" method="get">
@@ -60,7 +60,7 @@ function generateCardHTML(data) {
     </div>
 `).join(''); 
     
-userList.innerHTML = html;
+userList.innerHTML += html;
 
     let cardItems = document.querySelectorAll('.card');
     let items = [...cardItems]
@@ -69,8 +69,9 @@ userList.innerHTML = html;
             // Create event listener onto each card, so that a modal will popuplate. 
                 item.addEventListener('click', (e) => {
                     data.map(user => {
-                        console.log(user)
+                        // The Logic states that, when a user is click and the innerhtml content is equal to the user first name, create and show that users info onto page.
                         if(e.target.innerHTML.indexOf(user.name.first) > -1) {
+                            // Creates HTML layout for each user that is clicked. 
                              let modalDisplay = `
                                     <div class="modal-container">
                                     <div class="modal">
@@ -87,22 +88,21 @@ userList.innerHTML = html;
                                         </div>
                                     </div>
                                     `;
-                                    bodyElement.innerHTML += modalDisplay;
+                            // Appends the innerHTML to the newly created Div Const variable defined at the beginning
+                            modalDiv.innerHTML = modalDisplay;
+                            bodyElement.appendChild(modalDiv);       
+                        }   
+                    });
 
-                                const modal = document.querySelector('.modal-container');
-                                
-                                const closeModal = document.getElementById('modal-close-btn');
+                    // This assigns a click event to the modal window 
+                    const closeModal = document.getElementById('modal-close-btn');
                                 closeModal.addEventListener('click', () => {
-                                    console.log("this was clicked")
-                                    modal.style.display = "none";
-                                    
-                                    
+                                    // Removes the added Div element from the HTML once clicked. 
+                                    bodyElement.removeChild(modalDiv);
                                 });
-                        }
-                    })
                 })
-            });
-        }
+     });
+}
 
 
 
