@@ -89,7 +89,7 @@ userList.innerHTML = html;
                                     `;
                                     bodyElement.innerHTML += modalDisplay;
 
-                                const modal = document.getElementsByClassName('modal-container')[0];
+                                const modal = document.querySelector('.modal-container');
                                 
                                 const closeModal = document.getElementById('modal-close-btn');
                                 closeModal.addEventListener('click', () => {
