@@ -1,7 +1,7 @@
 const userList = document.getElementById('gallery');
 const searchBar = document.querySelector('.search-container');
 const bodyElement = document.querySelector('body');
-const modalDiv = document.createElement("div");
+
 
 // Create a search bar and append it to the Dom dynamically
 const search = `<form action="#" method="get">
@@ -24,8 +24,10 @@ function filterUsers() {
     
     // map through the list of names and grabs the inner HTML of each card item. 
     names.map(user => {
-        
-        if(user.innerHTML.indexOf(searchInput.value) > -1) {
+        // Trying to filler by just first and last name. 
+        const fullName = user.querySelector("#name").innerText;
+        console.log(fullName);
+        if(user.innerText.indexOf(searchInput.value) > -1) {
             user.style.display = "";
         } else {
             user.style.display = "none";
@@ -45,86 +47,88 @@ fetchData('https://randomuser.me/api/?results=12&nat=us&inc=picture,name,email,l
 
 
 
-// Create a function that will generate the 12 users, append them to the gallery div into cards dynamically. 
+// Create a function that will generate the 12 users, append them to the gallery div into cards dynamically. Also create HTML for the modal 
 function generateCardHTML(data) {
-    const html = data.map(user => 
-        `<div class="card">
-            <div class="card-img-container">
-                <img class="card-img" src="${user.picture.medium}" alt="profile picture">
-            </div>
-            <div class="card-info-container">
-                <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
-                <p class="card-text">${user.email}</p>
-                <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
-            </div>
-            </div>
-        `
-        ).join(''); 
-        // Grabs the previously defined variable userList and adds to it the innerHTML content of html to the page. 
-        userList.innerHTML += html;
+        data.map(user => { 
+            const personList = document.createElement("div");
+            personList.classList.add("card");
+            userList.appendChild(personList);
+            personList.innerHTML = `
+                    <div class="card-img-container">
+                        <img class="card-img" src="${user.picture.medium}" alt="profile picture">
+                    </div>
+                    <div class="card-info-container">
+                        <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
+                        <p class="card-text">${user.email}</p>
+                        <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
+                    </div>
+                ` ;
+        
+                // Creates the Modal for each user. 
+            const modalDiv = document.createElement("div");
+            modalDiv.classList.add("modal-container");
+            modalDiv.setAttribute("style", "display: none");
+            bodyElement.appendChild(modalDiv);
+            modalDiv.innerHTML =`
+                    <div class="modal">
+                        <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                        <div class="modal-info-container">
+                            <img class="modal-img" src="${user.picture.large} " alt="profile picture">
+                            <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+                            <p class="modal-text">${user.email}</p>
+                            <p class="modal-text cap">${user.location.city}</p>
+                            <hr>
+                            <p class="modal-text">${user.phone}</p>
+                            <p class="modal-text">${user.location.street.number}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
+                            <p class="modal-text">Birthday: ${user.dob.date}</p>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-btn-container">
+                        <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                        <button type="button" id="modal-next" class="modal-next btn">Next</button>
+                    </div>
+                `;
+    });
+        
+}    
 
-    // Creates a variable to grab all elements with the class of card that was added to the DOM. 
-    let cardItems = document.querySelectorAll('.card');
+//  EVENT LISTENERS FOR THE DOM ELEMENTS
+    // Create a click event for all items within the gallery 
+    userList.addEventListener("click", (e) => {
+        // Creates a variable to grab the names of each card element. 
+        const userName = e.target.closest('.card').querySelector("#name").innerText;
+        // Grabs all of the modal infos, returns as a node list, nodelist must be converted into array to use map. 
+        const modalInfo = document.querySelectorAll(".modal #name");
+        const arrInfo = [...modalInfo];
+        arrInfo.map(user => {
+            // Logic statement, I want the name of the user thats clicked to match the name of the modal, then show that modal 
+            if(user.innerText === userName) {
+                const showModal = user.parentNode.parentNode.parentNode;
+                showModal.removeAttribute("style");
+            }
+        })
 
-    // Uses the spread operator to create a new array of html elements
-    let items = [...cardItems];
+    })
+     
+   
+// This assigns a click event to the modal window 
+    // Must grab the entire body, for bubbling delegation
+    bodyElement.addEventListener("click", (e) => {
+        // Logic statement, to make sure that all elements clicked in the modal will close it. 
+        if(e.target.className === "modal-close-btn" || e.target.innerText === "X"){
+            const modalClose = e.target.closest('.modal-container')
+            console.log(modalClose);
+            modalClose.setAttribute("style", "display:none");
+        };
+        const nextModal = document.querySelector('#modal-next');
+        const prevModal = document.querySelector('#modal-prev');
+    })
 
-        // Maps through each collected item, adds an event listener to each card item. 
-        items.map((item, index, items) => {
-                // Create event listener onto each card, so that a modal will popuplate. 
-                    item.addEventListener('click', (e) => {
-                        console.log(items);
-                        data.map(user => {
-                            
-                            // The Logic states that, when a user is click and the innerhtml content is equal to the user first name, create and show that users info onto page.
-                            if(e.target.innerHTML.indexOf(user.name.first) > -1) {
-                                // Creates HTML layout for each user that is clicked. 
-                                let modalDisplay = `
-                                        <div class="modal-container">
-                                            <div class="modal">
-                                                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                                                <div class="modal-info-container">
-                                                    <img class="modal-img" src="${user.picture.large} " alt="profile picture">
-                                                    <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
-                                                    <p class="modal-text">${user.email}</p>
-                                                    <p class="modal-text cap">${user.location.city}</p>
-                                                    <hr>
-                                                    <p class="modal-text">${user.phone}</p>
-                                                    <p class="modal-text">${user.location.street.number}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
-                                                    <p class="modal-text">Birthday: ${user.dob.date}</p>
-                                                </div>
-                                            </div>
 
-                                            <div class="modal-btn-container">
-                                                <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-                                                <button type="button" id="modal-next" class="modal-next btn">Next</button>
-                                            </div>
-                                        </div>
-                                        `;
-                                // Appends the innerHTML to the newly created Div Const variable defined at the beginning
-                                modalDiv.innerHTML = modalDisplay;
-                                bodyElement.appendChild(modalDiv);       
-                            }   
-                        });
 
-                        // This assigns a click event to the modal window 
-                        const closeModal = document.getElementById('modal-close-btn');
-                                    closeModal.addEventListener('click', () => {
-                                        // Removes the added Div element from the HTML once clicked. 
-                                        bodyElement.removeChild(modalDiv);
-                                    });
-                        const nextModal = document.querySelector('#modal-next');
-                        const prevModal = document.querySelector('#modal-prev');
-                                    nextModal.addEventListener('click', () => {
-                                        console.log("this was clicked next")
-                                    });
-                                    prevModal.addEventListener('click', () => {
-                                        console.log("this was clicked previous")
 
-                                    });
-                    });
-        });
-}
+
 
 
 
