@@ -50,6 +50,7 @@ fetchData('https://randomuser.me/api/?results=12&nat=us&inc=picture,name,email,l
 // Create a function that will generate the 12 users, append them to the gallery div into cards dynamically. Also create HTML for the modal 
 function generateCardHTML(data) {
         data.map(user => { 
+            const cleanBirthday = formatBirthday(user.dob.date)
             const personList = document.createElement("div");
             personList.classList.add("card");
             userList.appendChild(personList);
@@ -80,7 +81,7 @@ function generateCardHTML(data) {
                             <hr>
                             <p class="modal-text">${user.phone}</p>
                             <p class="modal-text">${user.location.street.number}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
-                            <p class="modal-text">Birthday: ${user.dob.date}</p>
+                            <p class="modal-text">Birthday: ${cleanBirthday}</p>
                         </div>
                         
                     </div>
@@ -125,8 +126,17 @@ function generateCardHTML(data) {
         const prevModal = document.querySelector('#modal-prev');
     })
 
+// Functions to change phone number and birthdate using regex
 
+function formatBirthday(date) {
+    date = date.replace(/[^\d]/g, "");
+	let actualDate = date.substring(0,8);
+	return actualDate.replace(/(\d{4})(\d{2})(\d{2})/, "$2/$3/$1")
+}
 
+function formatPhone(num) {
+
+}
 
 
 
